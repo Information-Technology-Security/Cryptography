@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <openssl/bn.h>
+
+#define NBITS 256
+
+void printBN(char *msg, BIGNUM *a);
+
+int main(int argc, char *argv[])
+{
+    int areEqual;
+    /*
+     *  Creation of BN-type structures
+     */
+    BN_CTX *ctx = BN_CTX_new();     // Memory structure for BN objects
+    BIGNUM *D = BN_new();           // Decrypted Signature
+    BIGNUM *H = BN_new();           // Hash for verification
+    BIGNUM *S = BN_new();           // Signature
+    BIGNUM *e = BN_new();           // Public key (e, N)
+    BIGNUM *N = BN_new();           // Modulo N
+
+    /*
+     *  Initialization of the public key (e, N) from the issuer's certificate
+     */
+    BN_hex2bn(&e, "00c14bb3654770bcdd4f58dbec9cedc366e51f311354ad4a66461f2c0aec6407e52edcdcb90a20eddfe3c4d09e9aa97a1d8288e51156db1e9f58c251e72c340d2ed292e156cbf1795fb3bb87ca25037b9a52416610604f571349f0e8376783dfe7d34b674c2251a6df0e9910ed57517426e27dc7ca622e131b7f238825536fc13458008b84fff8bea75849227b96ada2889b15bca07cdfe951a8d5b0ed37e236b4824b62b5499aecc767d6e33ef5e3d6125e44f1bf71427d58840380b18101faf9ca32bbb48e278727c52b74d4a8d697dec364f9cace53a256bc78178e490329aefb494fa415b9cef25c19576d6b79a72ba2272013b5d03d40d321300793ea99f5");
+
+    /*
+     *  Initialization of modulo N from the issuer's certificate
+     */  
+    BN_hex2bn(&N, "C14BB3654770BCDD4F58DBEC9CEDC366E51F311354AD4A66461F2C0AEC6407E52EDCDCB90A20EDDFE3C4D09E9AA97A1D8288E51156DB1E9F58C251E72C340D2ED292E156CBF1795FB3BB87CA25037B9A52416610604F571349F0E8376783DFE7D34B674C2251A6DF0E9910ED57517426E27DC7CA622E131B7F238825536FC13458008B84FFF8BEA75849227B96ADA2889B15BCA07CDFE951A8D5B0ED37E236B4824B62B5499AECC767D6E33EF5E3D6125E44F1BF71427D58840380B18101FAF9CA32BBB48E278727C52B74D4A8D697DEC364F9CACE53A256BC78178E490329AEFB494FA415B9CEF25C19576D6B79A72BA2272013B5D03D40D321300793EA99F5");
+
+    /*
+     *  Initialization of the signature from the server's certificate
+     */
+    BN_hex2bn(&S, "37a41b11229ffc9fc967078faa86139fe0081d6e0c8d65fb037950c676ba3090a0a41c791307b95a188d974c05718ad02217c619a2228b03f62c84716c55dfe2994365e5d7b7b7374cc6c8e5f1d8a77b075debb81c50a4a38ef04cf8b86a7259be430e8adeb55e8f9e3f5a436482cce0de76f4bea6120a0668bb77e14cef4b4d67aff672c76b1b9c4853a77fed76185cf0f6c64c24535757e142a63daee1f593f26afa2972013eb706f12f1a0e91c5ec35bff5da3395de24120df5c3238d4082d15cebde0a08e8e583e50a8b3a5e984e774f9fdcab7ecea8284faa794fc9be8f60886e6bf9206c7f3896d6dad7110343d8b85187ce32224d644cc47527d0e3df");
+
+    /*
+     *  Initialization of the hash through computation from the hash function
+     */
+    BN_hex2bn(&H, "ed799631340493b633ba23ec5748dcae2ae1eef862fab54b369c044e2aad4a63");
+
+    /*  
+     *  Compute the "decryption" of the digital signature from 
+     *  the server's certificate using the formula D = S^e mod N
+     */
+    BN_mod_exp(D, S, e, N, ctx);
+
+    /*
+     *  Print the digital signature  
+     */
+    printBN("Signature \t    =", S);
+
+    /*
+     *  Print the hash
+     */
+    printBN("Hash \t\t    =", H);
+
+    /*
+     *  Print the "decrypted" digital signature 
+     */
+    printBN("Decrypted Signature =", D);
+
+    /*
+     *  Compare the hash with the signature verification
+     */
+    areEqual = BN_cmp(H, D);
+    switch (areEqual)
+    {
+        case 0:
+            printf("Signature is Verified.\n");
+            break;
+        default:
+            printf("Signature is NOT Verified.\n");
+    }
+
+    /*
+     *  Free the BN structures from memory
+     */
+    BN_CTX_free(ctx);
+    BN_free(D);
+    BN_free(H);
+    BN_free(S);
+    BN_free(e);
+    BN_free(N);
+
+    return 0;
+}
+
+/*  
+ *  Function that prints BN-type structures to the output
+ */
+void printBN(char *msg, BIGNUM *a)
+{
+    char *number_str = BN_bn2hex(a);
+    printf("%s %s\n\n", msg, number_str);
+    OPENSSL_free(number_str);
+}
