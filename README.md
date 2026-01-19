@@ -65,259 +65,340 @@
 
 # Project Overview
 
-This project investigates the potential relationship between socio-economic factors—specifically unemployment and poverty rates and incidents of police killings across various U.S. states between 2015 and 2016
+This project explores **fundamental cryptographic operations** using the **OpenSSL BIGNUM (BN) library**. It focuses on the practical implementation of **RSA cryptography**, including key generation, encryption, decryption, digital signatures, and certificate verification.
+
+All implementations are written in **C** and utilize the OpenSSL BN library to handle large integer arithmetic beyond standard machine limits.
 
 ---
 
 ## Table of Contents
 
-| Section | Folder | Description |
-|------:|--------|-------------|
-| 1 | `assign/` | Assignment material for the Business Data & Management course |
-| 1.1 | `assign/Assignment-BDMGMT-Apr24.pdf` | Assignment description in English |
-| 1.2 | `assign/Εργασία-ΔΧΜΚ-Απρ24.pdf` | Assignment description in Greek |
-| 2 | `docs/` | Documentation and reports on US police killings |
-| 2.1 | `docs/Police-Killings-US.pdf` | English report |
-| 2.2 | `docs/Δολοφονίες-Αστυνομικών-ΗΠΑ.pdf` | Greek report |
-| 3 | `graphs/` | Visualizations and charts of datasets |
-| 3.1 | `graphs/2015-*.png` | Various 2015 charts: elbow method, optimal clusters, percentages, logs |
-| 3.2 | `graphs/2016-*.png` | Various 2016 charts: elbow method, optimal clusters, percentages, logs |
-| 3.3 | `graphs/avg-*.png` | Average charts across years |
-| 3.4 | `graphs/Clustering3-*.png` | Charts for 3-dataset clustering experiments |
-| 4 | `src/` | Source code, datasets, and notebooks |
-| 4.1 | `src/datasets/` | Raw datasets in CSV and JSON formats |
-| 4.2 | `src/jupyter/` | Jupyter notebooks for analysis and preprocessing |
-| 4.3 | `src/processed_datasets/` | Cleaned and processed datasets |
-| 4.4 | `src/python/` | Python scripts for clustering and preprocessing |
-| 5 | `README.md` | Repository overview, instructions, and summary |
+| Section | Path / File | Description |
+|--------:|-------------|-------------|
+| 1 | `assign/` | Official laboratory exercise specifications |
+| 1.1 | `assign/Exercise 2 (Cryptography)_2023.pdf` | Assignment description (English) |
+| 1.2 | `assign/Ασκηση 2 (Cryptography)_2023.pdf` | Assignment description (Greek) |
+| 2 | `docs/` | Project reports and theoretical analysis |
+| 2.1 | `docs/Cryptography.pdf` | Technical report (English) |
+| 2.2 | `docs/Κρυπτογραφία.pdf` | Technical report (Greek) |
+| 3 | `src/` | Cryptographic implementations and verification tools |
+| 3.1 | `src/private_key.c` | RSA private key generation |
+| 3.2 | `src/public_key` | RSA public key extraction |
+| 3.3 | `src/crypto_msg.c` | Message encryption using public key |
+| 3.4 | `src/decrypto_msg.c` | Message decryption using private key |
+| 3.5 | `src/sign_msg.c` | Digital signature generation |
+| 3.6 | `src/verify_sign.c` | Digital signature verification |
+| 3.7 | `src/verify_sign_cert.c` | Signature verification using X.509 certificates |
+| 3.8 | `src/bn_sample.c` | Big number (BN) operations example |
+| 3.9 | `src/c0.pem`, `src/c1.pem` | RSA certificates |
+| 3.10 | `src/c0_body.bin` | Binary certificate body |
+| 3.11 | `src/cert_info.txt` | Certificate metadata and inspection output |
+| 4 | `screens/` | Experimental evidence and execution results |
+| 4.1 | `screens/Activity1–6/` | Step-by-step screenshots for each cryptographic activity |
+| 5 | `README.md` | Repository overview and usage instructions |
 
-## Project Overview
+## Project Structure
+The laboratory work is divided into independent activities, each targeting a specific cryptographic concept:
 
-The research explores whether states with higher levels of unemployment and poverty also exhibit higher frequencies of police brutality. By grouping data into clusters, the study seeks to identify patterns and correlations that can inform social policy and crime understanding.
+- **Private Key Generation (`private_key.c`)**  
+  Calculates the RSA private key `d` using prime numbers `p`, `q`, and the public exponent `e`.
 
----
+- **Message Encryption (`crypto_msg.c`)**  
+  Encrypts a plaintext message (e.g., a student's name) using the RSA encryption formula:  
+  
+  $$
+  C = M^e \pmod{N}
+  $$
 
-## Key Objectives
+- **Message Decryption (`decrypto_msg.c`)**  
+  Decrypts an encrypted hexadecimal ciphertext back into readable text using:  
+  
+  $$
+  D = C^d \pmod{N}
+  $$
 
-- **Correlation Analysis**  
-  Investigating whether unemployment rates correlate with homicide incidents.
+- **Digital Signature Creation (`sign_msg.c`)**  
+  Generates a digital signature for a given message using the RSA private key.
 
-- **Pattern Detection**  
-  Using clustering techniques to observe geographical and economic patterns in police killings.
+- **Signature Verification (`verify_sign_msg.c`)**  
+  Verifies message authenticity by comparing the decrypted signature with the original message.
 
-- **Policy Support**  
-  Providing data-driven insights for sociologists, economists, and policymakers to address social issues.
-
----
-
-## Datasets
-
-The analysis utilizes three primary datasets sourced from platforms such as **Kaggle** and **Opendatasoft**:
-
-- **Police Killings Dataset**  
-  Includes data on victims (age, sex, race), location (state/city), cause of death, and whether body cameras were used.
-
-- **Unemployment / Poverty Dataset**  
-  Contains poverty rates and absolute numbers of unemployed individuals per state.
-
-- **US City Populations Dataset**  
-  Experimental data for cities with more than 65,000 inhabitants, used to normalize results against total state populations.
-
----
-
-## Methodology
-
-The team employed **Cluster Analysis** using the **K-Means algorithm**. This method was chosen for its efficiency with relatively small datasets (51 entries) and its ability to detect hidden patterns without requiring pre-labeled data.
+- **X.509 Certificate Verification (`verify_sign_cert.c`)**  
+  Manually extracts and verifies the digital signature of a real-world web server certificate  
+  (e.g., *apachefriends.org*).
 
 ---
 
-## Data Preprocessing
+## Key Mathematical Formulas Used
+- Modulo:
 
-- **Time Alignment**  
-  Data was pruned to include only the years **2015 and 2016** to ensure a common temporal scale.
+$$
+𝑁
+=
+𝑝
+×
+𝑞
+$$
 
-- **Morphology Normalization**  
-  State names were standardized to abbreviations (e.g., *New York → NY*) to enable successful dataset joining.
+- Euler’s Totient Function:
 
-- **Normalization**  
-  Logarithmic normalization and standard deviation scaling were applied to account for significant differences in population size between states.
+$$
+𝜑
+(
+𝑁
+)
+=
+(
+𝑝
+−
+1
+)
+(
+𝑞
+−
+1
+)
+$$
 
-- **Handling Data Gaps**  
-  States with zero recorded murders (e.g., *Rhode Island in 2015*) were manually assigned a value of `0` rather than being omitted.
+- Private Key Calculation:
+
+$$
+𝑒
+×
+𝑑
+≡
+1
+ 
+(
+mod 
+𝜑
+(
+𝑁
+)
+)
+$$
+
+- Encryption:
+
+$$
+𝐶
+=
+𝑀
+𝑒
+ 
+(
+mod 
+𝑁
+)
+$$
+
+- Decryption:
+
+$$
+𝐷
+=
+𝐶
+𝑑
+ 
+(
+mod 
+𝑁
+)
+$$
 
 ---
 
-## Evaluation Metrics
+## Key Observations
+### Sensitivity
+Even a single-bit change in a message or signature produces a completely different result, ensuring data integrity.
 
-To assess cluster quality, the following non-predictive evaluation metrics were used:
+### Efficiency
+The OpenSSL BN library efficiently manages large integers required for secure RSA operations.
 
-- **SSE (Sum of Squared Error)**  
-  Measures the deviation of actual values from cluster centroids, indicating how close data points are within clusters.
-
-- **Silhouette Coefficient**  
-  Measures how well data points are separated between clusters; values closer to `1` indicate better clustering.
-
----
-
-## Experimental Results
-
-The analysis was conducted in **four distinct stages**, progressing from percentage-based metrics to log-normalized absolute values to improve accuracy.
-
-| Analysis Stage       | Metric      | Year 2015 | Year 2016 |
-|----------------------|-------------|-----------|-----------|
-| Percentage Rates     | SSE         | 25,464    | 29,151    |
-|                      | Silhouette  | 0.518     | 0.495     |
-| Net Numbers          | SSE         | 18,885    | 19,478    |
-|                      | Silhouette  | 0.481     | 0.484     |
-| Log Normalized       | SSE         | 22,391    | —         |
-|                      | Silhouette  | 0.554     | —         |
+### Real-world Application
+The same RSA principles implemented in this lab are used in X.509 certificate verification for secure web communications.
 
 ---
 
-
-## Technologies Used
-
-- **Programming Language:** Python 3  
-- **Data Analysis & Machine Learning:**  
-  - K-Means Clustering (Unsupervised Learning)  
-  - Z-score Normalization  
-  - Logarithmic Normalization  
-- **Big Data & Statistical Concepts:**  
-  - Cluster Analysis  
-  - Socio-economic Data Correlation  
-  - Population Normalization Factors  
-- **Data Structures:**  
-  - Pandas DataFrames  
-  - NumPy Arrays  
-- **Libraries & Frameworks:**  
-  - `pandas` (data loading, preprocessing, merging)  
-  - `numpy` (numerical operations, transformations)  
-  - `scikit-learn` (KMeans, Silhouette Coefficient, SSE)  
-  - `scipy` (`zscore` normalization)  
-  - `matplotlib` (data visualization)  
-  - `json` (US states name mapping)  
-  - `os` (console handling)  
-- **Development Environment:**  
-  - Python scripts (`.py`)  
-  - Jupyter Notebooks (`.ipynb`)  
+## Conclusion
+This laboratory project demonstrates how theoretical cryptographic principles are applied in practice using professional-grade libraries. It bridges the gap between academic RSA concepts and their real-world security applications, such as encrypted communication and digital certificate validation. 
 
 ---
 
-# Installation & Run Guide
+# Installation & Setup Guide  
+
+This guide explains how to install prerequisites, compile, and execute the **Cryptography** laboratory project, which implements **RSA cryptographic operations** using the **OpenSSL BIGNUM (BN) library** in **C**.
+
+The project is intended for **academic and laboratory use** within the context of the *Information Technology Security* course at the **University of West Attica (UNIWA)**.
+
+---
 
 ## Prerequisites
 
-This project requires **Python 3** to be installed on your system.
+### 1. Operating System
 
-Verify your Python installation by running:
+- **Linux-based OS** (recommended)
+  - Ubuntu 16.04 / 18.04 / 20.04
+  - SEED Ubuntu VM (fully compatible)
+
+### 2. Required Software
+
+#### C Compiler
+- **GCC**
+
+Verify installation:
 ```bash
-python --version
+gcc --version
 ```
-or
+If not installed:
+```bash
+sudo apt update
+sudo apt install -y build-essential
+```
+
+#### OpenSSL Development Library (Mandatory)
+The project relies on the OpenSSL crypto (BN) library.
+Install OpenSSL development headers:
+```bash
+sudo apt install -y libssl-dev
+```
+Verify installation:
+```bash
+openssl version
+```
+
+#### Python (Optional but Recommended)
+Used for hexadecimal encoding/decoding and verification steps.
 ```bash
 python3 --version
 ```
-If Python is not installed, download it from:
-
-https://www.python.org/downloads/
-
-Additionally, install the required Python libraries:
-
+Install if missing:
 ```bash
-pip install pandas numpy scikit-learn scipy matplotlib
+sudo apt install -y python3
 ```
+
+---
 
 ## Installation
-Clone the repository to your local machine:
-
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/Big-Data-Management-aka-Uniwa/US-Police-Killing-Search.git
+git clone https://github.com/Information-Technology-Security/Cryptography.git
+cd Cryptography/src
 ```
 
-Navigate to the project directory:
+---
+
+## Compilation Instructions
+All programs must be linked against the OpenSSL crypto library `-lcrypto`.
+
+> Compile each file individually, as each source file represents a separate cryptographic activity.
+
+### 1. Big Number Example (BN Library)
 ```bash
-cd US-Police-Killing-Search/src/python
+gcc bn_sample.c -o bn_sample -lcrypto
+./bn_sample
 ```
 
-Ensure the following folder structure exists:
-
-```
-datasets/
-processed_datasets/
-```
-
-## Data Preprocessing
-Before running the clustering experiments, preprocess the raw datasets:
-
+### 2. RSA Private Key Generation
 ```bash
-python preprocessData.py
+gcc private_key.c -o private_key -lcrypto
+./private_key
 ```
+This program:
+- Computes RSA modulus N
+- Calculates Euler’s totient φ(N)
+- Derives the private exponent d
 
-This step:
-- Filters police killing and poverty data for 2015–2016
-- Normalizes U.S. state names to two-letter abbreviations
-- Computes population statistics
-- Produces cleaned datasets in processed_datasets/
-- Generates average datasets for 2015–2016
-
-### Run Clustering (2 Datasets)
-Execute clustering using Police Killings & Poverty datasets:
-
+### 3. RSA Public Key Extraction
 ```bash
-python Clustering_2_Datasets.py
+gcc public_key.c -o public_key -lcrypto
+./public_key
 ```
-You will be prompted to select:
-- Year (2015 / 2016 / Average)
-- Data representation (rates, absolute numbers, logarithmic normalization)
-- Number of clusters (k)
 
-The program outputs:
-- Cluster visualizations
-- SSE (Sum of Squared Errors)
-- Silhouette Coefficient
-- Elbow Method plot for optimal k
-
-## Run Clustering (3 Datasets)
-Execute clustering with Police Killings, Poverty, and Population normalization:
-
+### 4. Message Encryption (Public Key)
 ```bash
-python Clustering_3_Datasets.py
+gcc crypto_msg.c -o crypto_msg -lcrypto
+./crypto_msg
 ```
-This version:
-- Normalizes killings and poverty by total state population
-- Performs K-Means clustering
-- Visualizes clusters and centroids
-- Reports SSE and Silhouette metrics
 
-## Jupyter Notebook Support
-All source files are also implemented as Jupyter Notebooks (.ipynb), allowing:
-- Interactive execution
-- Step-by-step analysis
-- Inline visualizations
+Encrypts a plaintext message using:
 
-Launch Jupyter Notebook with:
+$$
+𝐶
+=
+𝑀
+𝑒
+ 
+m
+o
+d
+ 
+𝑁
+$$
+
+ 
+### 5. Message Decryption (Private Key)
 ```bash
-jupyter notebook
+gcc decrypto_msg.c -o decrypto_msg -lcrypto
+./decrypto_msg
 ```
+Decrypts ciphertext using:
 
-Then open the corresponding .ipynb files by navigating to project directory
+$$
+𝐷
+=
+𝐶
+𝑑
+ 
+m
+o
+d
 
-Navigate to the project directory:
+𝑁
+$$
+
+### 6. Digital Signature Generation
 ```bash
-cd US-Police-Killing-Search/src/jupyter
+gcc sign_msg.c -o sign_msg -lcrypto
+./sign_msg
 ```
 
-## Output
-- Cluster scatter plots with centroids
-- Quantitative clustering metrics (SSE, Silhouette Coefficient)
-- CSV files containing processed and merged datasets
+Produces a digital signature using the RSA private key.
 
-The analysis terminates after all clusters and evaluation metrics are displayed.
+### 7. Digital Signature Verification
+```bash
+gcc verify_sign.c -o verify_sign -lcrypto
+./verify_sign
+```
+
+Validates message authenticity by comparing hashes.
+
+### 8. X.509 Certificate Signature Verification
+```bash
+gcc verify_sign_cert.c -o verify_sign_cert -lcrypto
+./verify_sign_cert
+```
+
+This program:
+- Extracts certificate fields
+- Verifies the digital signature of a real-world X.509 certificate
+- Confirms authenticity using RSA public key parameters
+
+---
+
+## Troubleshooting
+
+| Issue | Cause | Solution |
+|-------|-------|---------|
+| `openssl/bn.h` not found | Missing OpenSSL headers | Install `libssl-dev` |
+| Undefined reference to `BN_*` | Missing crypto library | Add `-lcrypto` to linker flags |
+| Compilation fails | Old GCC | Update build tools |
+| Incorrect output | Wrong key parameters | Verify `p`, `q`, `e` values |
 
 ---
 
 ## Open the Documentation
 1. Navigate to the `docs/` directory
 2. Open the report corresponding to your preferred language:
-    - English: `Police-Killings-US.pdf`
-    - Greek: `Δολοφονίες-Αστυνομικών-ΗΠΑ.pdf`
+    - English: `Cryptography.pdf`
+    - Greek: `Κρυπτογραφία.pdf`
