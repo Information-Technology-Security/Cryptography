@@ -130,81 +130,37 @@ The laboratory work is divided into independent activities, each targeting a spe
 ---
 
 ## Key Mathematical Formulas Used
-- Modulo:
+
+- Modulo (RSA modulus):
 
 $$
-𝑁
-=
-𝑝
-×
-𝑞
+N = p \times q
 $$
 
 - Euler’s Totient Function:
 
 $$
-𝜑
-(
-𝑁
-)
-=
-(
-𝑝
-−
-1
-)
-(
-𝑞
-−
-1
-)
+\phi(N) = (p-1)(q-1)
 $$
 
 - Private Key Calculation:
 
 $$
-𝑒
-×
-𝑑
-≡
-1
- 
-(
-mod 
-𝜑
-(
-𝑁
-)
-)
+e \cdot d \equiv 1 \pmod{\phi(N)}
 $$
 
 - Encryption:
 
 $$
-𝐶
-=
-𝑀
-𝑒
- 
-(
-mod 
-𝑁
-)
+C = M^e \pmod{N}
 $$
 
 - Decryption:
 
 $$
-𝐷
-=
-𝐶
-𝑑
- 
-(
-mod 
-𝑁
-)
+D = C^d \pmod{N}
 $$
+
 
 ---
 
@@ -324,18 +280,8 @@ gcc crypto_msg.c -o crypto_msg -lcrypto
 Encrypts a plaintext message using:
 
 $$
-𝐶
-=
-𝑀
-𝑒
- 
-m
-o
-d
- 
-𝑁
+C = M^e \pmod{N}
 $$
-
  
 ### 5. Message Decryption (Private Key)
 ```bash
@@ -345,16 +291,7 @@ gcc decrypto_msg.c -o decrypto_msg -lcrypto
 Decrypts ciphertext using:
 
 $$
-𝐷
-=
-𝐶
-𝑑
- 
-m
-o
-d
-
-𝑁
+D = C^d \pmod{N}
 $$
 
 ### 6. Digital Signature Generation
